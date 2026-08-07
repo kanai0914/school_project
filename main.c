@@ -30,6 +30,7 @@ int select_task(int task)
 
 int main(void)
 {
+    // neko
     printf("please enter a number >>");
     pritnf("1. task1\n");
     scanf("%d", &task_num);
