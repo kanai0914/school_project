@@ -20,6 +20,9 @@ int select_task(int task)
 
     case 4:
         printf("4\n");
+        printf("nekoneko\n");
+        // プログラムを編集したらgit commitするよ！！
+        // プログラムを編集したら必ずctrl + Sしよう！じゃないとさっきみたいに「保存しますか」ってきかれてしまうよ
         break;
 
     default:
