@@ -32,10 +32,7 @@ int select_task(int task)
 
 int main(void)
 {
-    // neko
-    // hello !! this sentence is test.
-    // please ctrl + s. this command is save your project
-    // if you ctrl + s cricle -> cross
+
     printf("please enter a number >>");
     pritnf("1. task1\n");
     scanf("%d", &task_num);
