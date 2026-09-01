@@ -34,7 +34,7 @@ int main(void)
 {
 
     printf("please enter a number >>");
-    pritnf("1. task1\n");
+    pritntf("1. task1\n");
     scanf("%d", &task_num);
     select_task(task_num);
     return 0;
