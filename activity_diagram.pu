@@ -1,0 +1,21 @@
+```uml
+@startuml
+:プログラムスタート;
+:3つの抵抗値を入力;
+switch (実験番号選択（3−５）)
+
+case (3)
+    :3の電気回路図(1)を表示;
+
+
+case (4)
+    :処理C;
+
+case (5)
+    :defalt;
+endswitch
+
+stop
+
+@enduml
+```@enduml

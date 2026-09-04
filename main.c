@@ -2,7 +2,22 @@
 
 int task_num;
 
-int select_task(int task)
+
+typedef enum  {
+    DIAGRAM3_1,
+    DIAGRAM3_2,
+    DIAGRAM3_3,
+    DIAGRAM4_1,
+    DIAGRAM4_2,
+    DIAGRAM5_a,
+    DIAGRAM5_b,
+}DIAGRAM; // this is type name
+
+void view_electric_circuit(DIAGRAM diagram){
+
+}
+
+void select_task(int task)
 {
     switch (task)
     {
@@ -33,6 +48,7 @@ int select_task(int task)
 int main(void)
 {
 
+    
     printf("please enter a number >>");
     pritntf("1. task1\n");
     scanf("%d", &task_num);
