@@ -20,6 +20,11 @@ typedef enum
     DIAGRAM5_a,
     DIAGRAM5_b,
 } DIAGRAM; // this is type name
+// Function to calculate the parallel resistance of two resistors
+double calc_para(double a, double b)
+{
+    return (a * b)/(a + b);
+}
 
 void view_electric_circuit(DIAGRAM diagram)
 {
