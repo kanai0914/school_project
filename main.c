@@ -1,6 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h> // exit() を使うために必要
 #include <stdarg.h>
-#include <stdbool.h>
 
 // 並列の計算
 double parallel_calculations(int count, ...)
@@ -22,6 +22,7 @@ double parallel_calculations(int count, ...)
     return parallel_sum;
 }
 
+// 直列の計算
 double series_calculations(int count, ...)
 {
     if (count <= 0)
@@ -39,26 +40,77 @@ double series_calculations(int count, ...)
     return series_sum;
 }
 
+// buffer clear関数（ループ防止用）
+static void clear_input_buffer(void)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
+
+// 安全にdoubleの値を読む関数
+static double read_double(const char *sentence)
+{
+    double value;
+    while (1)
+    {
+        printf("%s", sentence);
+        int result = scanf("%lf", &value);
+
+        if (result == 1)
+        {
+            clear_input_buffer();
+            return value;
+        }
+        else if (result == EOF)
+        {
+            printf("\ninput closed. exiting.\n");
+            exit(1);
+        }
+        printf("please enter a valid value.\n");
+        clear_input_buffer();
+    }
+}
+
+// 安全にintの値を読む関数
+static int read_int(const char *sentence)
+{
+    int value;
+    while (1)
+    {
+        printf("%s", sentence);
+        int result = scanf("%d", &value);
+
+        if (result == 1)
+        {
+            clear_input_buffer();
+            return value;
+        }
+        else if (result == EOF)
+        {
+            printf("\ninput closed. exiting.\n");
+            exit(1);
+        }
+        printf("please enter a valid value.\n");
+        clear_input_buffer();
+    }
+}
+
 int main(void)
 {
     double r1, r2, r3;
 
     // 抵抗の入力
     printf("please enter three resistance value\n");
-    printf("R1:");
-    scanf("%lf", &r1);
-    printf("R2:");
-    scanf("%lf", &r2);
-    printf("R3:");
-    scanf("%lf", &r3);
-
-    int decision = 0;
+    r1 = read_double("R1:");
+    r2 = read_double("R2:");
+    r3 = read_double("R3:");
 
     while (1)
     {
         printf("are you ok this value?\n R1>%lf\nR2>%lf\nR3>%lf\n", r1, r2, r3);
-        printf("if YES. please enter 1.\n if NO. please enter 0.\n [y:n]>");
-        scanf("%d", &decision);
+        printf("if YES. please enter 1.\n if NO. please enter 0.\n");
+        int decision = read_int("enter number>");
 
         if (decision == 1)
         {
@@ -67,57 +119,42 @@ int main(void)
         }
         else if (decision == 0)
         {
-            int select_number = 0;
             printf("please select change resistance value\n");
             printf("enter_number:select_value\n");
-            printf("1:R1  2:R2  3:R3 4:All resistance\n  enter number>");
-            scanf("%d", &select_number);
+            printf("1:R1  2:R2  3:R3 4:All resistance\n");
+            int select_number = read_int("enter number>");
+
             switch (select_number)
             {
             case 1:
-                printf("R1>");
-                scanf("%lf", &r1);
+                r1 = read_resistance("R1>");
                 break;
             case 2:
-                printf("R2>");
-                scanf("%lf", &r2);
+                r2 = read_resistance("R2>");
                 break;
             case 3:
-                printf("R3>");
-                scanf("%lf", &r3);
+                r3 = read_resistance("R3>");
                 break;
             case 4:
-                printf("All resistance>");
-                printf("R1>");
-                scanf("%lf", &r1);
-                printf("R2>");
-                scanf("%lf", &r2);
-                printf("R3>");
-                scanf("%lf", &r3);
+                r1 = read_resistance("R1>");
+                r2 = read_resistance("R2>");
+                r3 = read_resistance("R3>");
                 break;
             default:
-                printf("the input was outside the valid range, so returning to the beginning\n");
-                break;
+                printf("Please enter a value between 1 and 4.");
             }
         }
         else
         {
-            printf("the input was outside the valid range, so returning to the beginning\n");
+            printf("Please enter a value 0 or 1");
         }
     }
 
     /*
-        // 並列処理確認プログラム
-        printf("please enter number>");
-    scanf("%lf %lf %lf", &r1, &r2, &r3);
-    double result_parallel = parallel_calculations(3, r1, r2, r3);
-    printf("%.5lf\n", result_parallel);
+    // 並列・直列の確認
+    printf("parallel: %.5lf\n", parallel_calculations(3, r1, r2, r3));
+    printf("series  : %.5lf\n", series_calculations(3, r1, r2, r3));
+    */
 
-    // 直列処理確認プログラム
-    printf("please enter number>");
-    scanf("%lf %lf %lf", &r1, &r2, &r3);
-    double result_series = series_calculations(3, r1, r2, r3);
-    printf("%.5lf\n", result_series);
-*/
     return 0;
 }
