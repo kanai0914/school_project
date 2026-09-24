@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h> // exit() を使うために必要
+#include <stdlib.h>
 #include <stdarg.h>
 
 // 並列の計算
@@ -49,12 +49,16 @@ static void clear_input_buffer(void)
 }
 
 // 安全にdoubleの値を読む関数
-static double read_double(const char *sentence)
+static double read_double_format(const char *format, ...)
 {
     double value;
     while (1)
     {
-        printf("%s", sentence);
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+
         int result = scanf("%lf", &value);
 
         if (result == 1)
@@ -73,12 +77,16 @@ static double read_double(const char *sentence)
 }
 
 // 安全にintの値を読む関数
-static int read_int(const char *sentence)
+static int read_int(const char *format, ...)
 {
     int value;
     while (1)
     {
-        printf("%s", sentence);
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+
         int result = scanf("%d", &value);
 
         if (result == 1)
@@ -96,16 +104,79 @@ static int read_int(const char *sentence)
     }
 }
 
+void check_value(double array[], int count, ...)
+{
+
+    va_list args;
+    va_start(args, count);
+    char sentence[count];
+    for (int i = 0; i < count; i++)
+    {
+        sentence[i] = va_arg(args, char);
+    }
+    va_end(args);
+
+    printf("Are you ok this value?\n");
+    for (int i = 0; i < count; i++)
+    {
+        printf("%s>%d\n", sentence[i], array[i]);
+    }
+    printf("if YES. please enter 1.\n if NO. please enter 0.\n");
+    int decision = read_int("enter number>");
+
+    if (decision == 1)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            printf("%s>%d\n", sentence[i], array[i]);
+        }
+    }
+    else if (decision == 0)
+    {
+        printf("please select change resistance value\n");
+        printf("enter_number:select_value\n");
+        for (int i = 0; i < count; i++)
+        {
+            printf("%d:%s ", i + 1, sentence[i]);
+        }
+        printf("%d:all change\n", count + 1);
+        int select_number = read_int("enter number>");
+
+        for (int i = 0; i < count; i++)
+        {
+            if (select_number = count + 1)
+            {
+                for (int j = 0; j < count; j++)
+                {
+                    array[j] = read_double_format("enter%s", sentence[j]);
+                }
+                break;
+            }
+            if (select_number = i + 1)
+            {
+                array[i] = read_double_format("enter%s", sentence[i]);
+                break;
+            }
+        }
+    }
+    else
+    {
+        printf("Please enter a value 0 or 1");
+    }
+}
+
 int main(void)
 {
     double r1, r2, r3;
+    double r[3];
 
     // 抵抗の入力
     printf("please enter three resistance value\n");
-    r1 = read_double("R1:");
-    r2 = read_double("R2:");
-    r3 = read_double("R3:");
+    r1 = read_double_format("R1:");
+    r2 = read_double_format("R2:");
+    r3 = read_double_format("R3:");
 
+    // 入力した抵抗が本当に大丈夫なのか確認
     while (1)
     {
         printf("are you ok this value?\n R1>%lf\nR2>%lf\nR3>%lf\n", r1, r2, r3);
@@ -127,18 +198,18 @@ int main(void)
             switch (select_number)
             {
             case 1:
-                r1 = read_resistance("R1>");
+                r1 = read_double_format("R1>");
                 break;
             case 2:
-                r2 = read_resistance("R2>");
+                r2 = read_double_format("R2>");
                 break;
             case 3:
-                r3 = read_resistance("R3>");
+                r3 = read_double_format("R3>");
                 break;
             case 4:
-                r1 = read_resistance("R1>");
-                r2 = read_resistance("R2>");
-                r3 = read_resistance("R3>");
+                r1 = read_double_format("R1>");
+                r2 = read_double_format("R2>");
+                r3 = read_double_format("R3>");
                 break;
             default:
                 printf("Please enter a value between 1 and 4.");
@@ -148,6 +219,32 @@ int main(void)
         {
             printf("Please enter a value 0 or 1");
         }
+    }
+
+    printf("please select experiment number.\n");
+    int experiment_number = read_int("range is 2 ~ 6>");
+    switch (experiment_number)
+    {
+    case 2:
+        printf("Please enter the information required to create Table 2.1.\n");
+        printf("first,please enter r1 current value");
+        double a2, a4, a6, a8;
+        a2 = read_double_format("voltage>2 current>");
+        a4 = read_double_format("voltage>4 current>");
+        a6 = read_double_format("voltage>6 current>");
+        a8 = read_double_format("voltage>8 current>");
+
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    case 5:
+        break;
+    case 6:
+        break;
+    default:
+        break;
     }
 
     /*
