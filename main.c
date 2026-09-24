@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#define RESISTOR_COUNT 3
+#define VOLTAGE_COUNT 4
+
 // 並列の計算
 double parallel_calculations(int count, ...)
 {
@@ -103,6 +106,7 @@ static int read_int_format(const char *format, ...)
     }
 }
 
+// 分岐check用関数
 static void check_values(double values[], const char *names[], int count)
 {
     while (1)
@@ -152,22 +156,77 @@ static void check_values(double values[], const char *names[], int count)
     }
 }
 
+// 1つの抵抗について、電圧ごとの電流を入力して確認する
+static void measure_currents(const char *resistor_name, const char *voltages[],
+                             double currents[], int count)
+{
+    printf("When %s\n", resistor_name);
+    for (int i = 0; i < count; i++)
+    {
+        currents[i] = read_double_format("please enter current when voltage %s>", voltages[i]);
+    }
+    check_values(currents, voltages, count);
+}
+
+// 実験2:全部の抵抗について電流を測って表示する
+static void experiment2(const char *resistor_names[])
+{
+    const char *voltages[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
+    double currents[RESISTOR_COUNT][VOLTAGE_COUNT];
+
+    printf("Please enter the information required to create Table 2.1.\n");
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        measure_currents(resistor_names[i], voltages, currents[i], VOLTAGE_COUNT);
+    }
+
+    // 結果の表示
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        printf("[%s]\n", resistor_names[i]);
+        for (int j = 0; j < VOLTAGE_COUNT; j++)
+        {
+            printf("  %s:%lf\n", voltages[j], currents[i][j]);
+        }
+    }
+}
+
 int main(void)
 {
-    double r[3];
-    const char *names[3] = {"R1", "R2", "R3"};
+    double r[RESISTOR_COUNT];
+    const char *names[RESISTOR_COUNT] = {"R1", "R2", "R3"};
 
     printf("please enter three resistance value\n");
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < RESISTOR_COUNT; i++)
     {
         r[i] = read_double_format("%s:", names[i]);
     }
 
-    check_values(r, names, 3);
+    check_values(r, names, RESISTOR_COUNT);
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < RESISTOR_COUNT; i++)
     {
-        printf("%s:%lf\n", names[i], r[i]);
+        printf("%s:%.5lf\n", names[i], r[i]);
+    }
+
+    printf("please select experiment number.\n");
+    int experiment_number = read_int_format("range is 2 ~ 6>");
+    switch (experiment_number)
+    {
+    case 2:
+        experiment2(names);
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    case 5:
+        break;
+    case 6:
+        break;
+    default:
+        printf("Please enter a value 2 or 6\n");
+        break;
     }
     return 0;
 }
