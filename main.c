@@ -1,58 +1,23 @@
 #include <stdio.h>
+#include <stdarg.h>
 
-#ifndef _WIN32
-
-#endif
-
-#ifdef _WIN32
-
-#endif
-
-int task_num;
-
-typedef enum
+// 並列の計算
+double parallel_calculations(int count, ...)
 {
-    DIAGRAM3_1,
-    DIAGRAM3_2,
-    DIAGRAM3_3,
-    DIAGRAM4_1,
-    DIAGRAM4_2,
-    DIAGRAM5_a,
-    DIAGRAM5_b,
-} DIAGRAM; // this is type name
-// Function to calculate the parallel resistance of two resistors
-double calc_para(double a, double b)
-{
-    return (a * b)/(a + b);
-}
-
-void view_electric_circuit(DIAGRAM diagram)
-{
-    switch (diagram)
+    if (count <= 0)
     {
-    case DIAGRAM3_1:
-        // 実験３の回路1を表示
-        break;
-
-    case DIAGRAM3_2:
-        // 実験３の回路2を表示
-        break;
-    case DIAGRAM3_3:
-        // 実験３の回路3を表示
-        break;
-    case DIAGRAM4_1:
-        // 実験4-1の回路を表示
-        break;
-    case DIAGRAM4_2:
-        // 実験4-2の回路を表示
-        break;
-    case DIAGRAM5_a:
-        // 実験5の回路aを表示
-        break;
-    case DIAGRAM5_b:
-        // 実験5の回路を表示
-        break;
+        return 0.0;
     }
+    va_list args;
+    va_start(args, count);
+    double parallel_sum = 0.0;
+    for (int i = 0; i < count; i++)
+    {
+        double reciprocal = 1 / va_arg(args, double);
+        parallel_sum += reciprocal;
+    }
+    double result = 1 / parallel_sum;
+    return result;
 }
 
 void select_task(int task)
@@ -85,10 +50,12 @@ void select_task(int task)
 
 int main(void)
 {
-
-    printf("please enter a number >>");
-    pritntf("1. task1\n");
-    scanf("%d", &task_num);
-    select_task(task_num);
+    double r1, r2, r3;
+    double result;
+    int count;
+    printf("please enter number>");
+    scanf("%lf %lf %lf", &r1, &r2, &r3);
+    result = parallel_calculations(3, r1, r2, r3);
+    printf("%.5lf\n", result);
     return 0;
 }
