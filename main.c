@@ -10,14 +10,30 @@ double parallel_calculations(int count, ...)
     }
     va_list args;
     va_start(args, count);
-    double parallel_sum = 0.0;
+    double reciprocal_sum = 0.0;
     for (int i = 0; i < count; i++)
     {
         double reciprocal = 1 / va_arg(args, double);
-        parallel_sum += reciprocal;
+        reciprocal_sum += reciprocal;
     }
-    double result = 1 / parallel_sum;
-    return result;
+    double parallel_sum = 1 / reciprocal_sum;
+    return parallel_sum;
+}
+
+double series_calculations(int count, ...)
+{
+    if (count <= 0)
+    {
+        return 0.0;
+    }
+    va_list args;
+    va_start(args, count);
+    double series_sum = 0.0;
+    for (int i = 0; i < count; i++)
+    {
+        series_sum += va_arg(args, double);
+    }
+    return series_sum;
 }
 
 void select_task(int task)
@@ -51,11 +67,18 @@ void select_task(int task)
 int main(void)
 {
     double r1, r2, r3;
-    double result;
     int count;
+    // 並列処理確認プログラム
     printf("please enter number>");
     scanf("%lf %lf %lf", &r1, &r2, &r3);
-    result = parallel_calculations(3, r1, r2, r3);
-    printf("%.5lf\n", result);
+    double result_parallel = parallel_calculations(3, r1, r2, r3);
+    printf("%.5lf\n", result_parallel);
+
+    // 直列処理確認プログラム
+    printf("please enter number>");
+    scanf("%lf %lf %lf", &r1, &r2, &r3);
+    double result_series = series_calculations(3, r1, r2, r3);
+    printf("%.5lf\n", result_series);
+
     return 0;
 }
