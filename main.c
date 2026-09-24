@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <math.h>
 
 #define RESISTOR_COUNT 3
 #define VOLTAGE_COUNT 4
+#define COL_WIDTH 16 // 表の1列の文字幅
 
 // 並列の計算
 double parallel_calculations(int count, ...)
@@ -168,32 +170,72 @@ static void measure_currents(const char *resistor_name, const char *voltages[],
     check_values(currents, voltages, count);
 }
 
-// 1つの抵抗について、電圧・電流・抵抗(R = V / I)の表を表示する
-static void print_table(const char *resistor_name, const double voltages[],
-                        const double currents[], int count)
+/**
+ * @brief 表を表示させる汎用関数
+ *
+ * @param title 表のタイトル
+ * @param headers 各列の見出し
+ * @param rows 表の行数
+ * @param cols 列数
+ * @param precision 小数点以下の桁数
+ * @param data rows × cols の表データ
+ * memo: width pointa
+ */
+static void print_table(const char *title, const char *headers[], int rows, int cols,
+                        int precision, double data[rows][cols])
 {
-    printf("[%s]\n", resistor_name);
-    printf("%-12s%-14s%-16s\n", "Voltage[V]", "Current[mA]", "Resistance[kohm]");
+    printf("[%s]\n", title);
+
+    for (int j = 0; j < cols; j++)
+    {
+        printf("%-*s", COL_WIDTH, headers[j]);
+    }
+    printf("\n");
+
+    for (int j = 0; j < cols * COL_WIDTH; j++)
+    {
+        putchar('-');
+    }
+    printf("\n");
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (isnan(data[i][j]))
+            {
+                printf("%-*s", COL_WIDTH, "---");
+            }
+            else
+            {
+                printf("%-*.*f", COL_WIDTH, precision, data[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
+// 電圧と電流から「電圧・電流・抵抗(R = V / I)」の表データを作る
+static void make_iv_table(const double voltages[], const double currents[],
+                          int count, double table[][3])
+{
     for (int i = 0; i < count; i++)
     {
-        printf("%-12.1f%-14.5f", voltages[i], currents[i]);
-        if (currents[i] > 0.0)
-        {
-            printf("%-16.5f\n", voltages[i] / currents[i]);
-        }
-        else
-        {
-            printf("%-16s\n", "---");
-        }
+        table[i][0] = voltages[i];
+        table[i][1] = currents[i];
+        table[i][2] = (currents[i] > 0.0) ? voltages[i] / currents[i] : NAN;
     }
 }
 
 // 実験2:全部の抵抗について電流を測って表示する
 static void experiment2(const char *resistor_names[], int resistor_count)
 {
+    // 表示・確認用の名前と、計算用の数値は、同じ順番で揃えておく
     const char *voltage_names[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
     const double voltage_values[VOLTAGE_COUNT] = {2.0, 4.0, 6.0, 8.0};
-    double currents[RESISTOR_COUNT][VOLTAGE_COUNT]; // tableづくり
+    const char *headers[3] = {"Voltage[V]", "Current[A]", "Resistance[ohm]"};
+    double currents[RESISTOR_COUNT][VOLTAGE_COUNT];
+    double table[VOLTAGE_COUNT][3];
 
     printf("Please enter the information required to create Table 2.1.\n");
     for (int i = 0; i < resistor_count; i++)
@@ -201,10 +243,10 @@ static void experiment2(const char *resistor_names[], int resistor_count)
         measure_currents(resistor_names[i], voltage_names, currents[i], VOLTAGE_COUNT);
     }
 
-    // 結果の表示
     for (int i = 0; i < resistor_count; i++)
     {
-        print_table(resistor_names[i], voltage_values, currents[i], VOLTAGE_COUNT);
+        make_iv_table(voltage_values, currents[i], VOLTAGE_COUNT, table);
+        print_table(resistor_names[i], headers, VOLTAGE_COUNT, 3, 5, table);
     }
 }
 
