@@ -109,6 +109,15 @@ static int read_int_format(const char *format, ...)
 }
 
 // 分岐check用関数
+/**
+ * @brief 分岐check用関数
+ *
+ * @param values 確認したい値の配列
+ * @param names 値に紐付ける名前
+ * @param count 何個分の配列があるのか。
+ *
+ * @details valuesとnamesの配列の数は一緒にすること！！
+ */
 static void check_values(double values[], const char *names[], int count)
 {
     while (1)
@@ -158,7 +167,16 @@ static void check_values(double values[], const char *names[], int count)
     }
 }
 
-// 1つの抵抗について、電圧ごとの電流を入力して確認する
+/**
+ * @brief 一つの抵抗に対し、電圧ごとの電流を入力して値を確認する関数
+ *
+ * @param resistor_name 抵抗の名前
+ * @param voltages 何ボルトの電圧がかかっているか
+ * @param currents 何アンペアの電流がかかっているか
+ * @param count 何個分の配列があるのか
+ *
+ * @details voltagesとcurrentsの配列の数は一緒にすること！！
+ */
 static void measure_currents(const char *resistor_name, const char *voltages[],
                              double currents[], int count)
 {
@@ -216,6 +234,14 @@ static void print_table(const char *title, const char *headers[], int rows, int 
 }
 
 // 電圧と電流から「電圧・電流・抵抗(R = V / I)」の表データを作る
+/**
+ * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数
+ *
+ * @param voltages 電圧
+ * @param currents 電流
+ * @param count 何個分の配列があるのか
+ * @param table いくつ分表示させるのか
+ */
 static void make_iv_table(const double voltages[], const double currents[],
                           int count, double table[][3])
 {
