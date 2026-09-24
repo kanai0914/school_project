@@ -168,26 +168,43 @@ static void measure_currents(const char *resistor_name, const char *voltages[],
     check_values(currents, voltages, count);
 }
 
-// 実験2:全部の抵抗について電流を測って表示する
-static void experiment2(const char *resistor_names[])
+// 1つの抵抗について、電圧・電流・抵抗(R = V / I)の表を表示する
+static void print_table(const char *resistor_name, const double voltages[],
+                        const double currents[], int count)
 {
-    const char *voltages[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
-    double currents[RESISTOR_COUNT][VOLTAGE_COUNT];
+    printf("[%s]\n", resistor_name);
+    printf("%-12s%-14s%-16s\n", "Voltage[V]", "Current[mA]", "Resistance[kohm]");
+    for (int i = 0; i < count; i++)
+    {
+        printf("%-12.1f%-14.5f", voltages[i], currents[i]);
+        if (currents[i] > 0.0)
+        {
+            printf("%-16.5f\n", voltages[i] / currents[i]);
+        }
+        else
+        {
+            printf("%-16s\n", "---");
+        }
+    }
+}
+
+// 実験2:全部の抵抗について電流を測って表示する
+static void experiment2(const char *resistor_names[], int resistor_count)
+{
+    const char *voltage_names[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
+    const double voltage_values[VOLTAGE_COUNT] = {2.0, 4.0, 6.0, 8.0};
+    double currents[RESISTOR_COUNT][VOLTAGE_COUNT]; // tableづくり
 
     printf("Please enter the information required to create Table 2.1.\n");
-    for (int i = 0; i < RESISTOR_COUNT; i++)
+    for (int i = 0; i < resistor_count; i++)
     {
-        measure_currents(resistor_names[i], voltages, currents[i], VOLTAGE_COUNT);
+        measure_currents(resistor_names[i], voltage_names, currents[i], VOLTAGE_COUNT);
     }
 
     // 結果の表示
-    for (int i = 0; i < RESISTOR_COUNT; i++)
+    for (int i = 0; i < resistor_count; i++)
     {
-        printf("[%s]\n", resistor_names[i]);
-        for (int j = 0; j < VOLTAGE_COUNT; j++)
-        {
-            printf("  %s:%lf\n", voltages[j], currents[i][j]);
-        }
+        print_table(resistor_names[i], voltage_values, currents[i], VOLTAGE_COUNT);
     }
 }
 
@@ -206,7 +223,7 @@ int main(void)
 
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
-        printf("%s:%.5lf\n", names[i], r[i]);
+        printf("%s:%lf\n", names[i], r[i]);
     }
 
     printf("please select experiment number.\n");
@@ -214,7 +231,7 @@ int main(void)
     switch (experiment_number)
     {
     case 2:
-        experiment2(names);
+        experiment2(names, RESISTOR_COUNT);
         break;
     case 3:
         break;
