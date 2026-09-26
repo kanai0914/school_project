@@ -7,6 +7,9 @@
 #define VOLTAGE_COUNT 4
 #define COL_WIDTH 16 // 表の1列の文字幅
 
+// 共通抵抗
+double r[RESISTOR_COUNT];
+
 // 並列の計算
 double parallel_calculations(int count, ...)
 {
@@ -298,6 +301,7 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     double currents[RESISTOR_COUNT][VOLTAGE_COUNT];
     double table[VOLTAGE_COUNT][3];
     double avg_resistance[1][RESISTOR_COUNT]; // 1行 × 3列(R1,R2,R3の平均をこの1行に並べる)
+    double error_resistance[1][RESISTOR_COUNT];
 
     printf("Please enter the information required to create Table 2.1.\n");
     for (int i = 0; i < resistor_count; i++)
@@ -310,18 +314,30 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     {
         make_iv_table(voltage_values, currents[i], VOLTAGE_COUNT, table);
         print_table(resistor_names[i], headers, NULL, VOLTAGE_COUNT, 3, 5, table);
-        avg_resistance[0][i] = calculate_average(table, VOLTAGE_COUNT, 2); // 使う行は 0 だけ
+        printf("\n");
+        avg_resistance[0][i] = calculate_average(table, VOLTAGE_COUNT, 2);
     }
 
-    // 表2.2の作成:各抵抗の平均抵抗値を1行にまとめて表示
-    const char *avg_headers[RESISTOR_COUNT] = {"[kohm]", "[kohm]", "[kohm]"};
+    // 表2.2の作成(コンダクタンスと抵抗値は入れていない)
+    const char *headers_2_3[RESISTOR_COUNT] = {"[kohm]", "[kohm]", "[kohm]"};
     const char *avg_row_labels[1] = {"Rの平均値"};
-    print_table("抵抗の公称値", avg_headers, avg_row_labels, 1, RESISTOR_COUNT, 5, avg_resistance);
+    print_table("抵抗の公称値", headers_2_3, avg_row_labels, 1, RESISTOR_COUNT, 5, avg_resistance);
+    printf("\n");
+
+    // 誤差率の計算
+    for (int i = 0; i < resistor_count; i++)
+    {
+        error_resistance[0][i] = (avg_resistance[0][i] - r[i]) / r[i] * 100;
+    }
+
+    // 表2.3の作成()
+
+    const char *error_row_labels[1] = {"誤差率 Ea[％]"};
+    print_table("抵抗の公称値", headers_2_3, error_row_labels, 1, RESISTOR_COUNT, 5, error_resistance);
 }
 
 int main(void)
 {
-    double r[RESISTOR_COUNT];
     const char *names[RESISTOR_COUNT] = {"R1", "R2", "R3"};
 
     printf("please enter three resistance value\n");
