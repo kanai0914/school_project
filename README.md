@@ -9,3 +9,14 @@
 実験2の回路図はこちらです。
 <img width="809" height="626" alt="image" src="https://github.com/user-attachments/assets/db27af92-6569-4672-b32e-1ac02be99d14" />
 実験2ではEが2V.4V,6V,8Vの場合のときに、どれくらいの電流が流れていたかを入力することによって、抵抗の平均値、抵抗の公称値との誤差率を確認することができます。
+
+## 実験3
+### 直列接続
+<img width="982" height="715" alt="image" src="https://github.com/user-attachments/assets/6fff7d94-ed48-4207-b779-77cb0617ce8d" />
+
+### 並列接続
+<img width="1120" height="752" alt="image" src="https://github.com/user-attachments/assets/5c6f2a5a-9930-4a45-975b-0ccc665f2f1c" />
+
+### 直並列接続
+<img width="1120" height="752" alt="image" src="https://github.com/user-attachments/assets/79b15800-5fdd-44c3-a262-17c34eeb912a" />
+
