@@ -173,7 +173,7 @@ static void check_values(double values[], const char *names[], int count)
  * @brief 一つの抵抗に対し、電圧ごとの電流を入力して値を確認する関数
  *
  * @param resistor_name 抵抗の名前
- * @param voltages 何ボルトの電圧がかかっているか
+ * @param voltages 何ボルトの電圧がかけているか
  * @param currents 何アンペアの電流がかかっているか
  * @param count 何個分の配列があるのか
  *
@@ -331,9 +331,35 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     }
 
     // 表2.3の作成()
-
     const char *error_row_labels[1] = {"誤差率 Ea[％]"};
     print_table("抵抗の公称値", headers_2_3, error_row_labels, 1, RESISTOR_COUNT, 5, error_resistance);
+}
+
+static void experiment3(void)
+{
+    const char *names[RESISTOR_COUNT] = {"Ra1", "Ra2", "Ra3"};
+    double ra[RESISTOR_COUNT];
+
+    printf("please enter three average resistance value\n");
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        ra[i] = read_double_format("%s:", names[i]);
+    }
+    check_values(ra, names, RESISTOR_COUNT);
+
+    const char *row_labels[6] = {"V", "V1", "V2", "V3", "I", "Rs"};
+    const char *header_1[1] = {"理論値"};
+    double table_1[6][1];
+
+    table_1[0][0] = 10.0;                  // V
+    table_1[5][0] = ra[0] + ra[1] + ra[2]; // Rs = Ra1 + Ra2 + Ra3(直列)
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        table_1[i + 1][0] = table_1[0][0] * ra[i] / table_1[5][0]; // Vi = V × Rai / Rs
+    }
+    table_1[4][0] = table_1[0][0] / table_1[5][0]; // I = V / Rs
+
+    print_table("表3.1", header_1, row_labels, 6, 1, 5, table_1);
 }
 
 int main(void)
@@ -361,6 +387,7 @@ int main(void)
         experiment2(names, RESISTOR_COUNT);
         break;
     case 3:
+        experiment3();
         break;
     case 4:
         break;
