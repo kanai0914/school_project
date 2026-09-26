@@ -7,5 +7,5 @@
 
 ## 実験2
 実験2の回路図はこちらです。
-<img width="856" height="616" alt="Image" src="https://github.com/user-attachments/assets/d4832ddd-7ef7-4f75-99ac-747b27e138c4" />
+<img width="809" height="626" alt="image" src="https://github.com/user-attachments/assets/db27af92-6569-4672-b32e-1ac02be99d14" />
 実験2ではEが2V.4V,6V,8Vの場合のときに、どれくらいの電流が流れていたかを入力することによって、抵抗の平均値、抵抗の公称値との誤差率を確認することができます。
