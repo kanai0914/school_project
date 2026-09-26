@@ -309,7 +309,7 @@ static void experiment2(const char *resistor_names[], int resistor_count)
         measure_currents(resistor_names[i], voltage_names, currents[i], VOLTAGE_COUNT);
     }
 
-    // 表2.1の作成 tableがfor文ごとに更新される
+    // 表2.1の作成 memo:tableがfor文ごとに更新される
     for (int i = 0; i < resistor_count; i++)
     {
         make_iv_table(voltage_values, currents[i], VOLTAGE_COUNT, table);
@@ -335,11 +335,14 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     print_table("抵抗の公称値", headers_2_3, error_row_labels, 1, RESISTOR_COUNT, 5, error_resistance);
 }
 
+// 実験3
 static void experiment3(void)
 {
+    // 実験2で求めたRaの入力に使う配列設定
     const char *names[RESISTOR_COUNT] = {"Ra1", "Ra2", "Ra3"};
     double ra[RESISTOR_COUNT];
 
+    // 実験2で求めたRaの入力
     printf("please enter three average resistance value\n");
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
@@ -347,10 +350,12 @@ static void experiment3(void)
     }
     check_values(ra, names, RESISTOR_COUNT);
 
-    const char *row_labels[6] = {"V", "V1", "V2", "V3", "I", "Rs"};
+    // 表3.1で使う配列の設定
+    const char *row_labels[6] = {"V[V]", "V1[V]", "V2[V]", "V3[V]", "I[mA]", "Rs{kohm}"};
     const char *header_1[1] = {"理論値"};
     double table_1[6][1];
 
+    // 表3.1の値計算
     table_1[0][0] = 10.0;                  // V
     table_1[5][0] = ra[0] + ra[1] + ra[2]; // Rs = Ra1 + Ra2 + Ra3(直列)
     for (int i = 0; i < RESISTOR_COUNT; i++)
@@ -359,6 +364,7 @@ static void experiment3(void)
     }
     table_1[4][0] = table_1[0][0] / table_1[5][0]; // I = V / Rs
 
+    // 表3.1の表示
     print_table("表3.1", header_1, row_labels, 6, 1, 5, table_1);
 }
 
