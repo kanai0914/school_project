@@ -79,7 +79,7 @@ static double read_double_format(const char *format, ...)
             printf("\ninput closed. exiting.\n");
             exit(1);
         }
-        printf("please enter a valid value.\n");
+        printf("有効な数字を入力してください.\n");
         clear_input_buffer();
     }
 }
@@ -106,7 +106,7 @@ static int read_int_format(const char *format, ...)
             printf("\ninput closed. exiting.\n");
             exit(1);
         }
-        printf("please enter a valid value.\n");
+        printf("有効な数字を入力してください.\n");
         clear_input_buffer();
     }
 }
@@ -129,8 +129,8 @@ static void check_values(double values[], const char *names[], int count)
         {
             printf("%s>%lf\n", names[i], values[i]);
         }
-        printf("if YES. please enter 1.\n if NO. please enter 0.\n");
-        int decision = read_int_format("enter number>");
+        printf("もし良ければ 1 を入力してください。\n もしだめなら 0 を入力してください。\n");
+        int decision = read_int_format("入力 >");
 
         if (decision == 1)
         {
@@ -138,13 +138,13 @@ static void check_values(double values[], const char *names[], int count)
         }
         else if (decision == 0)
         {
-            printf("please select change value\n");
+            printf("変えたい値を選択してください\n");
             for (int i = 0; i < count; i++)
             {
                 printf("%d:%s  ", i + 1, names[i]);
             }
-            printf("%d:All\n", count + 1);
-            int select_number = read_int_format("enter number>");
+            printf("%d:すべて\n", count + 1);
+            int select_number = read_int_format("入力 >");
 
             if (select_number == count + 1) // 全部変える
             {
@@ -159,12 +159,12 @@ static void check_values(double values[], const char *names[], int count)
             }
             else
             {
-                printf("please enter a number from 1 to %d.\n", count + 1);
+                printf("1 から %dの番号を入力してください.\n", count + 1);
             }
         }
         else
         {
-            printf("Please enter a value 0 or 1\n");
+            printf("0 か 1 を入力してください\n");
         }
     }
 }
@@ -173,7 +173,7 @@ static void check_values(double values[], const char *names[], int count)
  * @brief 一つの抵抗に対し、電圧ごとの電流を入力して値を確認する関数
  *
  * @param resistor_name 抵抗の名前
- * @param voltages 何ボルトの電圧がかかっているか
+ * @param voltages 何ボルトの電圧がかけているか
  * @param currents 何アンペアの電流がかかっているか
  * @param count 何個分の配列があるのか
  *
@@ -182,10 +182,10 @@ static void check_values(double values[], const char *names[], int count)
 static void measure_currents(const char *resistor_name, const char *voltages[],
                              double currents[], int count)
 {
-    printf("When %s\n", resistor_name);
+    printf("%sの時\n", resistor_name);
     for (int i = 0; i < count; i++)
     {
-        currents[i] = read_double_format("please enter current when voltage %s>", voltages[i]);
+        currents[i] = read_double_format("%sのときの電流 >", voltages[i]);
     }
     check_values(currents, voltages, count);
 }
@@ -297,19 +297,19 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     // 表示・確認用の名前と、計算用の数値は、同じ順番で揃えておく
     const char *voltage_names[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
     const double voltage_values[VOLTAGE_COUNT] = {2.0, 4.0, 6.0, 8.0};
-    const char *headers[3] = {"Voltage[V]", "Current[A]", "Resistance[kohm]"};
+    const char *headers[3] = {"電圧[V]", "電流[A]", "抵抗値[kΩ]"};
     double currents[RESISTOR_COUNT][VOLTAGE_COUNT];
     double table[VOLTAGE_COUNT][3];
     double avg_resistance[1][RESISTOR_COUNT]; // 1行 × 3列(R1,R2,R3の平均をこの1行に並べる)
     double error_resistance[1][RESISTOR_COUNT];
 
-    printf("Please enter the information required to create Table 2.1.\n");
+    printf("表2.1を作るために必要な項目を入力してください。\n");
     for (int i = 0; i < resistor_count; i++)
     {
         measure_currents(resistor_names[i], voltage_names, currents[i], VOLTAGE_COUNT);
     }
 
-    // 表2.1の作成 tableがfor文ごとに更新される
+    // 表2.1の作成 memo:tableがfor文ごとに更新される
     for (int i = 0; i < resistor_count; i++)
     {
         make_iv_table(voltage_values, currents[i], VOLTAGE_COUNT, table);
@@ -319,7 +319,7 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     }
 
     // 表2.2の作成(コンダクタンスと抵抗値は入れていない)
-    const char *headers_2_3[RESISTOR_COUNT] = {"[kohm]", "[kohm]", "[kohm]"};
+    const char *headers_2_3[RESISTOR_COUNT] = {"[kΩ]", "[kΩ]", "[kΩ]"};
     const char *avg_row_labels[1] = {"Rの平均値"};
     print_table("抵抗の公称値", headers_2_3, avg_row_labels, 1, RESISTOR_COUNT, 5, avg_resistance);
     printf("\n");
@@ -331,16 +331,76 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     }
 
     // 表2.3の作成()
-
     const char *error_row_labels[1] = {"誤差率 Ea[％]"};
     print_table("抵抗の公称値", headers_2_3, error_row_labels, 1, RESISTOR_COUNT, 5, error_resistance);
+}
+
+// 実験3
+static void experiment3(void)
+{
+    // 実験2で求めたRaの入力に使う配列設定
+    const char *names[RESISTOR_COUNT] = {"Ra1", "Ra2", "Ra3"};
+    double ra[RESISTOR_COUNT];
+
+    // 実験2で求めたRaの入力
+    printf("実験2で求めたそれぞれのRaの値(それぞれの抵抗の平均値)を入力してください\n");
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        ra[i] = read_double_format("%s:", names[i]);
+    }
+    check_values(ra, names, RESISTOR_COUNT);
+
+    // 表3.1で使う配列の設定
+    const char *row_labels_1[6] = {"V[V]", "V1[V]", "V2[V]", "V3[V]", "I[mA]", "Rs{kΩ}"};
+    const char *header[1] = {"理論値"};
+    double table[7][1];
+
+    // 表3.1の値計算
+    table[0][0] = 10.0;                                                     // V
+    table[5][0] = series_calculations(RESISTOR_COUNT, ra[0], ra[1], ra[2]); // Rs
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        table[i + 1][0] = table[0][0] * ra[i] / table[5][0]; // Vi = V × Rai / Rs
+    }
+    table[4][0] = table[0][0] / table[5][0]; // I = V / Rs
+
+    // 表3.1の表示
+    print_table("表3.1", header, row_labels_1, 6, 1, 5, table);
+
+    // 表3.2で使う配列の設定
+    const char *row_labels_2[6] = {"V[V]", "I1[mA]", "I2[mA]", "I3[mA]", "I[mA]", "Rp[kohm]"};
+
+    // 表3.2の値計算
+    table[5][0] = parallel_calculations(RESISTOR_COUNT, ra[0], ra[1], ra[2]); // Rp
+    table[4][0] = table[0][0] / table[5][0];                                  // I
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        table[i + 1][0] = (1 / ra[i]) * table[4][0] * table[5][0]; // Ii = 1/Rai * I * Rp
+    }
+    // 表3.2の表示
+    print_table("表3.2", header, row_labels_2, 6, 1, 5, table);
+
+    // 表3.3で使う配列と変数の設定
+    const char *row_labels_3[7] = {"V[V]", "V1[V]", "V2[V]", "I[mA]", "I2[mA]", "I3[mA]", "Rsp[kohm]"};
+    double parallel_resistor_sum = parallel_calculations(2, ra[1], ra[2]); // R2‖R3
+
+    // 表3.3の値の計
+    table[6][0] = series_calculations(2, parallel_resistor_sum, ra[0]); // Rsp = R1 + R2‖R3
+    table[1][0] = table[0][0] * ra[0] / table[6][0];                    // V1 = V×R1/Rsp
+    table[2][0] = table[0][0] * parallel_resistor_sum / table[6][0];    // V2 = V×(R2‖R3)/Rsp
+    table[3][0] = table[0][0] / table[6][0];                            // I  = V/Rsp
+    table[4][0] = table[3][0] * parallel_resistor_sum / ra[1];          // I2 = I×(R2‖R3)/Ra2
+    table[5][0] = table[3][0] * parallel_resistor_sum / ra[2];          // I3 = I×(R2‖R3)/Ra3
+
+    // 表3.3の表示
+    print_table("表3.3", header, row_labels_3, 7, 1, 5, table);
 }
 
 int main(void)
 {
     const char *names[RESISTOR_COUNT] = {"R1", "R2", "R3"};
 
-    printf("please enter three resistance value\n");
+    printf("R1 ~ R3の値を入力してください\n");
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
         r[i] = read_double_format("%s:", names[i]);
@@ -353,14 +413,15 @@ int main(void)
         printf("%s:%lf\n", names[i], r[i]);
     }
 
-    printf("please select experiment number.\n");
-    int experiment_number = read_int_format("range is 2 ~ 6>");
+    printf("実験の番号を入力してください。\n");
+    int experiment_number = read_int_format("実験番号 2 ~ 6 >");
     switch (experiment_number)
     {
     case 2:
         experiment2(names, RESISTOR_COUNT);
         break;
     case 3:
+        experiment3();
         break;
     case 4:
         break;
@@ -369,7 +430,7 @@ int main(void)
     case 6:
         break;
     default:
-        printf("Please enter a value 2 or 6\n");
+        printf("2から6までの番号を入力してください\n");
         break;
     }
     return 0;
