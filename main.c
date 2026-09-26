@@ -353,11 +353,11 @@ static void experiment3(void)
     // 表3.1で使う配列の設定
     const char *row_labels_1[6] = {"V[V]", "V1[V]", "V2[V]", "V3[V]", "I[mA]", "Rs{kohm}"};
     const char *header[1] = {"理論値"};
-    double table[6][1];
+    double table[7][1];
 
     // 表3.1の値計算
-    table[0][0] = 10.0; // V
-    table[5][0] = series_calculations(RESISTOR_COUNT, ra[0] + ra[1] + ra[2]);
+    table[0][0] = 10.0;                                                     // V
+    table[5][0] = series_calculations(RESISTOR_COUNT, ra[0], ra[1], ra[2]); // Rs
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
         table[i + 1][0] = table[0][0] * ra[i] / table[5][0]; // Vi = V × Rai / Rs
@@ -368,15 +368,32 @@ static void experiment3(void)
     print_table("表3.1", header, row_labels_1, 6, 1, 5, table);
 
     // 表3.2で使う配列の設定
-    const char *row_labels_2[6] = {"V[V]", "I1[mA]", "I2[mA]", "I3[mA]", "I[mA]", "Rp{kohm}"};
-    table[5][0] = parallel_calculations(RESISTOR_COUNT, ra[0], ra[1], ra[2]);
-    table[4][0] = table[0][0] / table[5][0]; // I
+    const char *row_labels_2[6] = {"V[V]", "I1[mA]", "I2[mA]", "I3[mA]", "I[mA]", "Rp[kohm]"};
+
+    // 表3.2の値計算
+    table[5][0] = parallel_calculations(RESISTOR_COUNT, ra[0], ra[1], ra[2]); // Rp
+    table[4][0] = table[0][0] / table[5][0];                                  // I
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
         table[i + 1][0] = (1 / ra[i]) * table[4][0] * table[5][0]; // Ii = 1/Rai * I * Rp
     }
     // 表3.2の表示
     print_table("表3.2", header, row_labels_2, 6, 1, 5, table);
+
+    // 表3.3で使う配列と変数の設定
+    const char *row_labels_3[7] = {"V[V]", "V1[V]", "V2[V]", "I[mA]", "I2[mA]", "I3[mA]", "Rsp[kohm]"};
+    double parallel_resistor_sum = parallel_calculations(2, ra[1], ra[2]); // R2‖R3
+
+    // 表3.3の値の計
+    table[6][0] = series_calculations(2, parallel_resistor_sum, ra[0]); // Rsp = R1 + R2‖R3
+    table[1][0] = table[0][0] * ra[0] / table[6][0];                    // V1 = V×R1/Rsp
+    table[2][0] = table[0][0] * parallel_resistor_sum / table[6][0];    // V2 = V×(R2‖R3)/Rsp
+    table[3][0] = table[0][0] / table[6][0];                            // I  = V/Rsp
+    table[4][0] = table[3][0] * parallel_resistor_sum / ra[1];          // I2 = I×(R2‖R3)/Ra2
+    table[5][0] = table[3][0] * parallel_resistor_sum / ra[2];          // I3 = I×(R2‖R3)/Ra3
+
+    // 表3.3の表示
+    print_table("表3.3", header, row_labels_3, 7, 1, 5, table);
 }
 
 int main(void)
