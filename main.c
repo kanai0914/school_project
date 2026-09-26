@@ -108,7 +108,6 @@ static int read_int_format(const char *format, ...)
     }
 }
 
-// 分岐check用関数
 /**
  * @brief 分岐check用関数
  *
@@ -191,33 +190,48 @@ static void measure_currents(const char *resistor_name, const char *voltages[],
 /**
  * @brief 表を表示させる汎用関数
  *
- * @param title 表のタイトル
+ * @param title 表のタイトル(row_labels が NULL のときは [ ] で囲んで表示、
+ *              NULL でないときは左上の角に置く)
  * @param headers 各列の見出し
+ * @param row_labels 各行の先頭に付けるラベル。行のラベルが不要なら NULL を渡す
  * @param rows 表の行数
  * @param cols 列数
  * @param precision 小数点以下の桁数
  * @param data rows × cols の表データ
- * memo: width pointa
  */
-static void print_table(const char *title, const char *headers[], int rows, int cols,
-                        int precision, double data[rows][cols])
+static void print_table(const char *title, const char *headers[], const char *row_labels[],
+                        int rows, int cols, int precision, double data[rows][cols])
 {
-    printf("[%s]\n", title);
-
+    // ヘッダー行
+    if (row_labels == NULL)
+    {
+        printf("[%s]\n", title);
+    }
+    else
+    {
+        printf("%-*s", COL_WIDTH, title); // 左上の角に title を置く
+    }
     for (int j = 0; j < cols; j++)
     {
         printf("%-*s", COL_WIDTH, headers[j]);
     }
     printf("\n");
 
-    for (int j = 0; j < cols * COL_WIDTH; j++)
+    // 区切り線(ラベル列があるぶん、幅を1列分伸ばす)
+    int line_cols = (row_labels == NULL) ? cols : cols + 1;
+    for (int j = 0; j < line_cols * COL_WIDTH; j++)
     {
         putchar('-');
     }
     printf("\n");
 
+    // データ行
     for (int i = 0; i < rows; i++)
     {
+        if (row_labels != NULL)
+        {
+            printf("%-*s", COL_WIDTH, row_labels[i]);
+        }
         for (int j = 0; j < cols; j++)
         {
             if (isnan(data[i][j]))
@@ -233,14 +247,13 @@ static void print_table(const char *title, const char *headers[], int rows, int 
     }
 }
 
-// 電圧と電流から「電圧・電流・抵抗(R = V / I)」の表データを作る
 /**
  * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数
  *
  * @param voltages 電圧
  * @param currents 電流
  * @param count 何個分の配列があるのか
- * @param table いくつ分表示させるのか
+ * @param table 表データの格納先(count 行 × 3列)
  */
 static void make_iv_table(const double voltages[], const double currents[],
                           int count, double table[][3])
@@ -253,15 +266,38 @@ static void make_iv_table(const double voltages[], const double currents[],
     }
 }
 
+// 表の col 列目の平均を計算する(NAN は除く)
+static double calculate_average(double table[][3], int rows, int col)
+{
+    double sum = 0.0;
+    int valid_count = 0;
+
+    for (int i = 0; i < rows; i++)
+    {
+        if (!isnan(table[i][col]))
+        {
+            sum += table[i][col];
+            valid_count++;
+        }
+    }
+
+    if (valid_count == 0) // 全部 NAN だった場合、0 割りを避ける
+    {
+        return NAN;
+    }
+    return sum / valid_count;
+}
+
 // 実験2:全部の抵抗について電流を測って表示する
 static void experiment2(const char *resistor_names[], int resistor_count)
 {
     // 表示・確認用の名前と、計算用の数値は、同じ順番で揃えておく
     const char *voltage_names[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
     const double voltage_values[VOLTAGE_COUNT] = {2.0, 4.0, 6.0, 8.0};
-    const char *headers[3] = {"Voltage[V]", "Current[A]", "Resistance[ohm]"};
+    const char *headers[3] = {"Voltage[V]", "Current[A]", "Resistance[kohm]"};
     double currents[RESISTOR_COUNT][VOLTAGE_COUNT];
     double table[VOLTAGE_COUNT][3];
+    double avg_resistance[1][RESISTOR_COUNT]; // 1行 × 3列(R1,R2,R3の平均をこの1行に並べる)
 
     printf("Please enter the information required to create Table 2.1.\n");
     for (int i = 0; i < resistor_count; i++)
@@ -269,11 +305,18 @@ static void experiment2(const char *resistor_names[], int resistor_count)
         measure_currents(resistor_names[i], voltage_names, currents[i], VOLTAGE_COUNT);
     }
 
+    // 表2.1の作成 tableがfor文ごとに更新される
     for (int i = 0; i < resistor_count; i++)
     {
         make_iv_table(voltage_values, currents[i], VOLTAGE_COUNT, table);
-        print_table(resistor_names[i], headers, VOLTAGE_COUNT, 3, 5, table);
+        print_table(resistor_names[i], headers, NULL, VOLTAGE_COUNT, 3, 5, table);
+        avg_resistance[0][i] = calculate_average(table, VOLTAGE_COUNT, 2); // 使う行は 0 だけ
     }
+
+    // 表2.2の作成:各抵抗の平均抵抗値を1行にまとめて表示
+    const char *avg_headers[RESISTOR_COUNT] = {"[kohm]", "[kohm]", "[kohm]"};
+    const char *avg_row_labels[1] = {"Rの平均値"};
+    print_table("抵抗の公称値", avg_headers, avg_row_labels, 1, RESISTOR_COUNT, 5, avg_resistance);
 }
 
 int main(void)
