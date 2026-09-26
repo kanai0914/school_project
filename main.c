@@ -351,21 +351,32 @@ static void experiment3(void)
     check_values(ra, names, RESISTOR_COUNT);
 
     // 表3.1で使う配列の設定
-    const char *row_labels[6] = {"V[V]", "V1[V]", "V2[V]", "V3[V]", "I[mA]", "Rs{kohm}"};
-    const char *header_1[1] = {"理論値"};
-    double table_1[6][1];
+    const char *row_labels_1[6] = {"V[V]", "V1[V]", "V2[V]", "V3[V]", "I[mA]", "Rs{kohm}"};
+    const char *header[1] = {"理論値"};
+    double table[6][1];
 
     // 表3.1の値計算
-    table_1[0][0] = 10.0;                  // V
-    table_1[5][0] = ra[0] + ra[1] + ra[2]; // Rs = Ra1 + Ra2 + Ra3(直列)
+    table[0][0] = 10.0; // V
+    table[5][0] = series_calculations(RESISTOR_COUNT, ra[0] + ra[1] + ra[2]);
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
-        table_1[i + 1][0] = table_1[0][0] * ra[i] / table_1[5][0]; // Vi = V × Rai / Rs
+        table[i + 1][0] = table[0][0] * ra[i] / table[5][0]; // Vi = V × Rai / Rs
     }
-    table_1[4][0] = table_1[0][0] / table_1[5][0]; // I = V / Rs
+    table[4][0] = table[0][0] / table[5][0]; // I = V / Rs
 
     // 表3.1の表示
-    print_table("表3.1", header_1, row_labels, 6, 1, 5, table_1);
+    print_table("表3.1", header, row_labels_1, 6, 1, 5, table);
+
+    // 表3.2で使う配列の設定
+    const char *row_labels_2[6] = {"V[V]", "I1[mA]", "I2[mA]", "I3[mA]", "I[mA]", "Rp{kohm}"};
+    table[5][0] = parallel_calculations(RESISTOR_COUNT, ra[0], ra[1], ra[2]);
+    table[4][0] = table[0][0] / table[5][0]; // I
+    for (int i = 0; i < RESISTOR_COUNT; i++)
+    {
+        table[i + 1][0] = (1 / ra[i]) * table[4][0] * table[5][0]; // Ii = 1/Rai * I * Rp
+    }
+    // 表3.2の表示
+    print_table("表3.2", header, row_labels_2, 6, 1, 5, table);
 }
 
 int main(void)
