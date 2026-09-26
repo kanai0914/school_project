@@ -124,12 +124,12 @@ static void check_values(double values[], const char *names[], int count)
 {
     while (1)
     {
-        printf("are you ok this value?\n");
+        printf("この値で大丈夫ですか？\n");
         for (int i = 0; i < count; i++)
         {
             printf("%s>%lf\n", names[i], values[i]);
         }
-        printf("もし良ければ 1 を入力してください。\n もしだめなら 0 を入力してください。\n");
+        printf("もし良ければ 1 を入力してください。\nもしだめなら 0 を入力してください。\n");
         int decision = read_int_format("入力 >");
 
         if (decision == 1)
@@ -403,7 +403,7 @@ int main(void)
     printf("R1 ~ R3の値を入力してください\n");
     for (int i = 0; i < RESISTOR_COUNT; i++)
     {
-        r[i] = read_double_format("%s:", names[i]);
+        r[i] = read_double_format("%s[kΩ]:", names[i]);
     }
 
     check_values(r, names, RESISTOR_COUNT);
