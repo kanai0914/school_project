@@ -21,6 +21,6 @@
 この回路は表3.2を作成する際に用いられる回路です。
 
 ### 直並列接続
-<img width="1120" height="752" alt="image" src="https://github.com/user-attachments/assets/79b15800-5fdd-44c3-a262-17c34eeb912a" />
+<img width="1037" height="618" alt="image" src="https://github.com/user-attachments/assets/f67dbc03-a2e6-47e2-b02e-cb0ba628e0d3" />
 この回路は表3.3を作成する際に用いられる回路です。
 
