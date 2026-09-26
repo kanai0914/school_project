@@ -7,9 +7,6 @@
 #define VOLTAGE_COUNT 4
 #define COL_WIDTH 16 // 表の1列の文字幅
 
-// 共通抵抗
-double r[RESISTOR_COUNT];
-
 // 並列の計算
 double parallel_calculations(int count, ...)
 {
@@ -251,7 +248,7 @@ static void print_table(const char *title, const char *headers[], const char *ro
 }
 
 /**
- * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数
+ * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数(実験2専用)
  *
  * @param voltages 電圧
  * @param currents 電流
@@ -269,17 +266,19 @@ static void make_iv_table(const double voltages[], const double currents[],
     }
 }
 
-// 表の col 列目の平均を計算する(NAN は除く)
-static double calculate_average(double table[][3], int rows, int col)
+/**
+ * @brief 表の col 列目の平均を計算する(NAN は除く)
+ */
+static double calculate_column_average(int rows, int cols, double data[rows][cols], int col)
 {
     double sum = 0.0;
     int valid_count = 0;
 
     for (int i = 0; i < rows; i++)
     {
-        if (!isnan(table[i][col]))
+        if (!isnan(data[i][col]))
         {
-            sum += table[i][col];
+            sum += data[i][col];
             valid_count++;
         }
     }
@@ -291,8 +290,19 @@ static double calculate_average(double table[][3], int rows, int col)
     return sum / valid_count;
 }
 
+/**
+ * @brief 誤差率(%)を計算する
+ *
+ * @param measured 測定値・比較したい値
+ * @param reference 基準にする値(真値とみなす方)
+ */
+static double calculate_error_rate(double measured, double reference)
+{
+    return (measured - reference) / reference * 100.0;
+}
+
 // 実験2:全部の抵抗について電流を測って表示する
-static void experiment2(const char *resistor_names[], int resistor_count)
+static void experiment2(const char *resistor_names[], int resistor_count, const double nominal_value[])
 {
     // 表示・確認用の名前と、計算用の数値は、同じ順番で揃えておく
     const char *voltage_names[VOLTAGE_COUNT] = {"2V", "4V", "6V", "8V"};
@@ -315,7 +325,7 @@ static void experiment2(const char *resistor_names[], int resistor_count)
         make_iv_table(voltage_values, currents[i], VOLTAGE_COUNT, table);
         print_table(resistor_names[i], headers, NULL, VOLTAGE_COUNT, 3, 5, table);
         printf("\n");
-        avg_resistance[0][i] = calculate_average(table, VOLTAGE_COUNT, 2);
+        avg_resistance[0][i] = calculate_column_average(VOLTAGE_COUNT, 3, table, 2);
     }
 
     // 表2.2の作成(コンダクタンスと抵抗値は入れていない)
@@ -324,13 +334,13 @@ static void experiment2(const char *resistor_names[], int resistor_count)
     print_table("抵抗の公称値", headers_2_3, avg_row_labels, 1, RESISTOR_COUNT, 5, avg_resistance);
     printf("\n");
 
-    // 誤差率の計算
+    // 誤差率の計算(基準は公称値 nominal_value[i])
     for (int i = 0; i < resistor_count; i++)
     {
-        error_resistance[0][i] = (avg_resistance[0][i] - r[i]) / r[i] * 100;
+        error_resistance[0][i] = calculate_error_rate(avg_resistance[0][i], nominal_value[i]);
     }
 
-    // 表2.3の作成()
+    // 表2.3の作成
     const char *error_row_labels[1] = {"誤差率 Ea[％]"};
     print_table("抵抗の公称値", headers_2_3, error_row_labels, 1, RESISTOR_COUNT, 5, error_resistance);
 }
@@ -398,6 +408,7 @@ static void experiment3(void)
 
 int main(void)
 {
+    double r[RESISTOR_COUNT];
     const char *names[RESISTOR_COUNT] = {"R1", "R2", "R3"};
 
     printf("R1 ~ R3の値を入力してください\n");
@@ -418,7 +429,7 @@ int main(void)
     switch (experiment_number)
     {
     case 2:
-        experiment2(names, RESISTOR_COUNT);
+        experiment2(names, RESISTOR_COUNT, r);
         break;
     case 3:
         experiment3();
