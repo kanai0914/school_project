@@ -5,7 +5,8 @@
 
 #define RESISTOR_COUNT 3
 #define VOLTAGE_COUNT 4
-#define COL_WIDTH 16 // 表の1列の文字幅
+#define VOLTAGE_STEP_COUNT_5 6 // 実験5で使う電圧ステップの数
+#define COL_WIDTH 16           // 表の1列の文字幅
 
 // ==========================================
 // 汎用関数
@@ -135,7 +136,7 @@ static double calculate_error_rate(double measured, double reference)
 // ==========================================
 
 /**
- * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数(実験2専用)
+ * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数(実験2・実験5で共通して使う)
  *
  * @param voltages 電圧
  * @param currents 電流
@@ -283,37 +284,176 @@ static void experiment3(void)
     print_table("表3.3", header, row_labels_3, 7, 1, 5, table);
 }
 
+// ==========================================
+// 実験4専用関数
+// ==========================================
+
 /**
- * @brief 実験4-1:キルヒホッフの第1法則の検証(担当者がここに実装する)
+ * @brief 実験4-1:キルヒホッフの第1法則の検証
  *
- * @details 使える汎用関数:
- *              - read_double_format : I1, I2, I3 の入力に使う
- *              - check_values       : 入力した値の確認に使う
- *              - calculate_error_rate(iin, iout) : 誤差率の計算に使う
- *              - print_table        : 表の表示に使う
- *          式: 誤差率 = (I1+I2-I3)/I3 × 100
- *              → calculate_error_rate(i1+i2, i3) を呼ぶだけで計算できる
+ * @details Iin = I1+I2, Iout = I3 として、Ioutを基準に誤差率を計算する。
+ *          (2)(3)の4パターン(V1=5,10,15,20V)に加えて、
+ *          (4)のR1,R3の電流計を外した再測定も同じ考え方で計算する。
  */
 static void experiment4_1(void)
 {
+    // (2)(3):V1 = 5, 10, 15, 20[V](V2は5[V]で固定)のときのI1, I2, I3を測定
+    const char *v1_labels[4] = {"V1=5V", "V1=10V", "V1=15V", "V1=20V"};
+    double i1[4], i2[4], i3[4];
+
+    printf("V2=5[V]に固定し、V1を5,10,15,20[V]と変えたときのI1, I2, I3を入力してください\n");
+    printf("(矢印の向きに応じて、負の値もそのまま入力すること)\n");
+    for (int i = 0; i < 4; i++)
+    {
+        printf("%s のとき\n", v1_labels[i]);
+        i1[i] = read_double_format("I1[mA]>");
+        i2[i] = read_double_format("I2[mA]>");
+        i3[i] = read_double_format("I3[mA]>");
+    }
+    check_values(i1, v1_labels, 4);
+    check_values(i2, v1_labels, 4);
+    check_values(i3, v1_labels, 4);
+
+    // 表4.2 (2)(3):Iin, Iout, Iin-Iout, 誤差率
+    double table_23[4][4];
+    for (int i = 0; i < 4; i++)
+    {
+        double iin = i1[i] + i2[i];
+        double iout = i3[i];
+        table_23[i][0] = iin;
+        table_23[i][1] = iout;
+        table_23[i][2] = iin - iout;
+        table_23[i][3] = calculate_error_rate(iin, iout); // Iout を基準にする
+    }
+    const char *headers_42[4] = {"Iin[mA]", "Iout[mA]", "Iin-Iout[mA]", "誤差率[%]"};
+    print_table("表4.2 (2)(3)", headers_42, v1_labels, 4, 4, 5, table_23);
+    printf("\n");
+
+    // 表4.2 (4):R1とR3の電流計を外してI2を測り直す(I1, I3はV1=5Vのときの値を使う)
+    printf("R1とR3の電流計を外して、I2を測り直してください\n");
+    double i2_retest = read_double_format("I2[mA]>");
+    double iin_4 = i1[0] + i2_retest;
+    double iout_4 = i3[0];
+    double table_4[1][4] = {{iin_4, iout_4, iin_4 - iout_4, calculate_error_rate(iin_4, iout_4)}};
+    const char *row_label_4[1] = {"(4) I2再測定"};
+    print_table("表4.2 (4)", headers_42, row_label_4, 1, 4, 5, table_4);
 }
 
 /**
- * @brief 実験4-2:キルヒホッフの第2法則の検証(担当者がここに実装する)
+ * @brief 実験4-2:キルヒホッフの第2法則の検証
  *
- * @details 使える汎用関数:
- *              - read_double_format : V1, V2, Vr1, Vr2, Vr3 の入力に使う
- *              - check_values       : 入力した値の確認に使う
- *              - series_calculations: 電圧の合計(Vr1+Vr2 など)の計算に使う
- *              - calculate_error_rate(vr, e) : 誤差率の計算に使う
- *              - print_table        : 表の表示に使う
- *          式(3パターン):
- *              (V1,R1,R2)      : 誤差率 = (Vr1+Vr2-V1)/V1 × 100
- *              (V2,R2,R3)      : 誤差率 = (Vr2+Vr3-V2)/V2 × 100
- *              (V1,V2,R1,R3)   : 誤差率 = (Vr1+Vr3-V1-V2)/(V1+V2) × 100
+ * @details 3つのループ(V1,R1,R2)(V2,R2,R3)(V1,V2,R1,R3)について、
+ *          起電力の総和Eを基準に、電圧降下の総和VRとの誤差率を計算する。
  */
 static void experiment4_2(void)
 {
+    printf("V1, V2, Vr1, Vr2, Vr3を入力してください\n");
+    printf("(矢印の向きに応じて、負の値もそのまま入力すること)\n");
+    const char *names[5] = {"V1", "V2", "Vr1", "Vr2", "Vr3"};
+    double values[5];
+    for (int i = 0; i < 5; i++)
+    {
+        values[i] = read_double_format("%s[V]>", names[i]);
+    }
+    check_values(values, names, 5);
+    double v1 = values[0], v2 = values[1];
+    double vr1 = values[2], vr2 = values[3], vr3 = values[4];
+
+    double table[3][4];
+    double e, vr;
+
+    e = v1;
+    vr = series_calculations(2, vr1, vr2);
+    table[0][0] = e;
+    table[0][1] = vr;
+    table[0][2] = vr - e;
+    table[0][3] = calculate_error_rate(vr, e);
+
+    e = v2;
+    vr = series_calculations(2, vr2, vr3);
+    table[1][0] = e;
+    table[1][1] = vr;
+    table[1][2] = vr - e;
+    table[1][3] = calculate_error_rate(vr, e);
+
+    e = series_calculations(2, v1, v2);
+    vr = series_calculations(2, vr1, vr3);
+    table[2][0] = e;
+    table[2][1] = vr;
+    table[2][2] = vr - e;
+    table[2][3] = calculate_error_rate(vr, e);
+
+    const char *headers[4] = {"E[V]", "VR[V]", "VR-E[V]", "誤差率[%]"};
+    const char *row_labels[3] = {"V1,R1,R2", "V2,R2,R3", "V1,V2,R1,R3"};
+    print_table("表4.4", headers, row_labels, 3, 4, 5, table);
+}
+
+// ==========================================
+// 実験5専用関数
+// ==========================================
+
+/**
+ * @brief 1つの抵抗・1つの回路について、電圧ごとの電流を入力してV/Iの表を作り、表示する
+ *
+ * @param resistor_name 抵抗の名前(表示用。例:"0.5Ω")
+ * @param circuit_name 回路の名前(表示用。例:"(a)")
+ * @param voltages 各行で設定する電圧の値
+ * @param count 行数(電圧ステップの数)
+ * @return V/I の平均値(NANを除いた平均。calculate_column_averageで計算)
+ */
+static double measure_and_average_v_over_i(const char *resistor_name, const char *circuit_name,
+                                           const double voltages[], int count)
+{
+    double currents[VOLTAGE_STEP_COUNT_5];
+    char v_label_storage[VOLTAGE_STEP_COUNT_5][16];
+    const char *v_labels[VOLTAGE_STEP_COUNT_5];
+
+    printf("【%s】実験回路%s\n", resistor_name, circuit_name);
+    for (int i = 0; i < count; i++)
+    {
+        snprintf(v_label_storage[i], sizeof(v_label_storage[i]), "%.1fV", voltages[i]);
+        v_labels[i] = v_label_storage[i];
+        currents[i] = read_double_format("%sのときの電流[A]>", v_labels[i]);
+    }
+    check_values(currents, v_labels, count);
+
+    double table[VOLTAGE_STEP_COUNT_5][3];
+    make_iv_table(voltages, currents, count, table);
+
+    const char *headers[3] = {"V[V]", "I[A]", "V/I[Ω]"};
+    print_table(resistor_name, headers, NULL, count, 3, 5, table);
+    printf("\n");
+
+    return calculate_column_average(count, 3, table, 2);
+}
+
+// ===========
+// 実験5(表5.4は作らず、表5.2と表5.5のみ)
+// ===========
+static void experiment5(void)
+{
+    const char *resistor_names[3] = {"0.5Ω", "560Ω", "150kΩ"};
+    double nominal[3] = {0.5, 560.0, 150000.0}; // 公称値(Ω単位に統一)
+
+    double voltages_05[VOLTAGE_STEP_COUNT_5] = {0.5, 0.4, 0.3, 0.2, 0.1, 0.0};
+    double voltages_560[VOLTAGE_STEP_COUNT_5] = {10.0, 8.0, 6.0, 4.0, 2.0, 0.0};
+    double voltages_150k[VOLTAGE_STEP_COUNT_5] = {25.0, 20.0, 15.0, 10.0, 5.0, 0.0};
+    const double *voltages[3] = {voltages_05, voltages_560, voltages_150k};
+
+    double error_rate[3][2]; // 行=抵抗、列=回路(a),(b)
+
+    for (int i = 0; i < 3; i++)
+    {
+        double avg_a = measure_and_average_v_over_i(resistor_names[i], "(a)", voltages[i], VOLTAGE_STEP_COUNT_5);
+        double avg_b = measure_and_average_v_over_i(resistor_names[i], "(b)", voltages[i], VOLTAGE_STEP_COUNT_5);
+
+        error_rate[i][0] = calculate_error_rate(avg_a, nominal[i]);
+        error_rate[i][1] = calculate_error_rate(avg_b, nominal[i]);
+    }
+
+    // 表5.5:公称値との誤差率
+    const char *headers_55[2] = {"回路(a)[%]", "回路(b)[%]"};
+    print_table("表5.5 公称値との誤差率", headers_55, resistor_names, 3, 2, 5, error_rate);
 }
 
 int main(void)
@@ -345,10 +485,11 @@ int main(void)
         experiment3();
         break;
     case 4:
-        experiment4_1(); // 括弧を付けて、ちゃんと「呼び出す」形にする
+        experiment4_1();
         experiment4_2();
         break;
     case 5:
+        experiment5();
         break;
     case 6:
         break;
