@@ -491,10 +491,8 @@ int main(void)
     case 5:
         experiment5();
         break;
-    case 6:
-        break;
     default:
-        printf("2から6までの番号を入力してください\n");
+        printf("2から5までの番号を入力してください\n");
         break;
     }
     return 0;
