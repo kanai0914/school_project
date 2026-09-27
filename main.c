@@ -8,50 +8,6 @@
 #define COL_WIDTH 16 // 表の1列の文字幅
 
 // ==========================================
-// 実験2専用関数
-// ==========================================
-
-/**
- * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数(実験2専用)
- *
- * @param voltages 電圧
- * @param currents 電流
- * @param count 何個分の配列があるのか
- * @param table 表データの格納先(count 行 × 3列)
- */
-static void make_iv_table(const double voltages[], const double currents[],
-                          int count, double table[][3])
-{
-    for (int i = 0; i < count; i++)
-    {
-        table[i][0] = voltages[i];
-        table[i][1] = currents[i];
-        table[i][2] = (currents[i] > 0.0) ? voltages[i] / currents[i] : NAN;
-    }
-}
-
-/**
- * @brief 一つの抵抗に対し、電圧ごとの電流を入力して値を確認する関数(実験2専用)
- *
- * @param resistor_name 抵抗の名前
- * @param voltages 何ボルトの電圧がかけているか
- * @param currents 何アンペアの電流がかかっているか
- * @param count 何個分の配列があるのか
- *
- * @details voltagesとcurrentsの配列の数は一緒にすること！！
- */
-static void measure_currents(const char *resistor_name, const char *voltages[],
-                             double currents[], int count)
-{
-    printf("%sの時\n", resistor_name);
-    for (int i = 0; i < count; i++)
-    {
-        currents[i] = read_double_format("%sのときの電流 >", voltages[i]);
-    }
-    check_values(currents, voltages, count);
-}
-
-// ==========================================
 // 汎用関数
 // ==========================================
 
@@ -172,6 +128,50 @@ static double calculate_column_average(int rows, int cols, double data[rows][col
 static double calculate_error_rate(double measured, double reference)
 {
     return (measured - reference) / reference * 100.0;
+}
+
+// ==========================================
+// 実験2専用関数
+// ==========================================
+
+/**
+ * @brief 電圧と電流から 電圧・電流・抵抗 の表データを作る関数(実験2専用)
+ *
+ * @param voltages 電圧
+ * @param currents 電流
+ * @param count 何個分の配列があるのか
+ * @param table 表データの格納先(count 行 × 3列)
+ */
+static void make_iv_table(const double voltages[], const double currents[],
+                          int count, double table[][3])
+{
+    for (int i = 0; i < count; i++)
+    {
+        table[i][0] = voltages[i];
+        table[i][1] = currents[i];
+        table[i][2] = (currents[i] > 0.0) ? voltages[i] / currents[i] : NAN;
+    }
+}
+
+/**
+ * @brief 一つの抵抗に対し、電圧ごとの電流を入力して値を確認する関数(実験2専用)
+ *
+ * @param resistor_name 抵抗の名前
+ * @param voltages 何ボルトの電圧がかけているか
+ * @param currents 何アンペアの電流がかかっているか
+ * @param count 何個分の配列があるのか
+ *
+ * @details voltagesとcurrentsの配列の数は一緒にすること！！
+ */
+static void measure_currents(const char *resistor_name, const char *voltages[],
+                             double currents[], int count)
+{
+    printf("%sの時\n", resistor_name);
+    for (int i = 0; i < count; i++)
+    {
+        currents[i] = read_double_format("%sのときの電流 >", voltages[i]);
+    }
+    check_values(currents, voltages, count);
 }
 
 // ===========
