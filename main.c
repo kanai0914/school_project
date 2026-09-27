@@ -406,6 +406,14 @@ static void experiment3(void)
     print_table("表3.3", header, row_labels_3, 7, 1, 5, table);
 }
 
+static void experiment4_1(void)
+{
+}
+
+static void experiment4_2(void)
+{
+}
+
 int main(void)
 {
     double r[RESISTOR_COUNT];
@@ -435,6 +443,8 @@ int main(void)
         experiment3();
         break;
     case 4:
+        experiment4_1;
+        experiment4_2;
         break;
     case 5:
         break;
