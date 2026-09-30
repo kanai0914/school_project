@@ -18,9 +18,6 @@
  * @param count 引数にいくつ値を渡すか
  * @param ... double型の値を count 個並べる
  * @return 並列合成した結果
- *
- * @details 使用例: double rp = parallel_calculations(3, 10.0, 20.0, 30.0);
- *          ※ count と、実際に渡す値の個数は必ず一致させること
  */
 double parallel_calculations(int count, ...);
 
@@ -30,9 +27,6 @@ double parallel_calculations(int count, ...);
  * @param count 引数にいくつ値を渡すか
  * @param ... double型の値を count 個並べる
  * @return 直列合成した結果
- *
- * @details 使用例: double rs = series_calculations(3, 10.0, 20.0, 30.0);
- *          ※ count と、実際に渡す値の個数は必ず一致させること
  */
 double series_calculations(int count, ...);
 
@@ -49,11 +43,6 @@ static void clear_input_buffer(void)
  *
  * @param format 表示する文字列。printfと同じ書き方ができる
  * @return 入力されたdouble型の値
- *
- * @details 使用例: double r1 = read_double_format("R1[kΩ]:");
- *          例2(変数を埋め込む): double i1 = read_double_format("%sの電流>", "R1");
- *          入力し直しが必要な場合は、自動で聞き直してくれるので、呼び出し側は
- *          正しい値が返ってくることだけ考えればよい。
  */
 static double read_double_format(const char *format, ...);
 
@@ -62,8 +51,6 @@ static double read_double_format(const char *format, ...);
  *
  * @param format 表示する文字列。printfと同じ書き方ができる
  * @return 入力されたint型の値
- *
- * @details 使用例: int decision = read_int_format("入力 >");
  */
 static int read_int_format(const char *format, ...);
 
@@ -73,13 +60,6 @@ static int read_int_format(const char *format, ...);
  * @param values 確認したい値の配列
  * @param names 値に紐付ける名前
  * @param count 何個分の配列があるのか
- *
- * @details valuesとnamesの配列の数は一緒にすること！！
- *          使用例:
- *              double r[3] = {10.0, 20.0, 30.0};
- *              const char *names[3] = {"R1", "R2", "R3"};
- *              check_values(r, names, 3);
- *          この1行で、値の表示・確認・修正まで全部やってくれる。
  */
 static void check_values(double values[], const char *names[], int count);
 
@@ -94,15 +74,6 @@ static void check_values(double values[], const char *names[], int count);
  * @param cols 列数
  * @param precision 小数点以下の桁数
  * @param data rows × cols の表データ
- *
- * @details 使用例(行ラベルなし):
- *              double table[4][3] = {...};
- *              const char *headers[3] = {"電圧[V]", "電流[A]", "抵抗[kΩ]"};
- *              print_table("R1", headers, NULL, 4, 3, 5, table);
- *
- *          使用例(行ラベルあり):
- *              const char *row_labels[1] = {"平均値"};
- *              print_table("公称値", headers, row_labels, 1, 3, 5, table);
  */
 static void print_table(const char *title, const char *headers[], const char *row_labels[],
                         int rows, int cols, int precision, double data[rows][cols]);
@@ -120,11 +91,6 @@ static double calculate_column_average(int rows, int cols, double data[rows][col
  *
  * @param measured 測定値・比較したい値
  * @param reference 基準にする値(真値とみなす方)
- *
- * @details 使用例: double error = calculate_error_rate(measured_r, nominal_r);
- *          式は (measured - reference) / reference * 100 なので、
- *          「向きに応じてマイナスを入力する」ような場面でも、
- *          measured と reference にその符号込みの値を渡せばそのまま使える。
  */
 static double calculate_error_rate(double measured, double reference)
 {
@@ -284,10 +250,7 @@ static void experiment3(void)
     print_table("表3.3", header, row_labels_3, 7, 1, 5, table);
 }
 
-// ==========================================
-// 実験4専用関数
-// ==========================================
-
+// 実験4
 /**
  * @brief 実験4-1:キルヒホッフの第1法則の検証
  *
@@ -452,7 +415,7 @@ static void experiment5(void)
     }
 
     // 表5.5:公称値との誤差率
-    const char *headers_55[2] = {"回路(a)[%]", "回路(b)[%]"};
+    const char *headers_55[2] = {"回路(a)[％]", "回路(b)[％]"};
     print_table("表5.5 公称値との誤差率", headers_55, resistor_names, 3, 2, 5, error_rate);
 }
 
